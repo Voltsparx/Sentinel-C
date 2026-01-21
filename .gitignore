@@ -1,0 +1,20 @@
+# Build folder
+build/
+
+# Reports
+reports/
+
+# Data files (logs & baseline)
+data/
+data/.sentinel-baseline
+data/.sentinel.log
+
+# OS generated files
+.DS_Store
+Thumbs.db
+
+# CMake files
+CMakeCache.txt
+CMakeFiles/
+cmake_install.cmake
+Makefile
