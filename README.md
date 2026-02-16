@@ -1,12 +1,12 @@
-# Sentinel-C v3.10 🛡️
+# Sentinel-C v3.50 🛡️
 
 **Author:** Voltsparx  
 **Contact:** voltsparx@gmail.com  
 **Language:** C/C++  
 **Repo:** [https://github.com/voltsparx/Sentinel-C](https://github.com/voltsparx/Sentinel-C)  
 
-Sentinel-C is an **Advanced Host Defense Multi-Tool**.  
-It provides file integrity monitoring, logging, HTML reports, and additional small security utilities — designed for cybersecurity learners, professionals, and anyone who cares about system security.
+Sentinel-C is an **Advanced Host Defense Multi-Tool** for file integrity monitoring and system security.  
+It provides baseline initialization, file comparison scanning, SHA-256 hashing, and comprehensive reporting in multiple formats (CLI, HTML, JSON) — designed for cybersecurity learners, professionals, and anyone who cares about system security.
 
 ---
 
@@ -84,122 +84,71 @@ Sentinel-C/
 
 ## ⚡ **Features**
 
-- Multi-tool framework for daily security and monitoring.  
-- File integrity monitoring (NEW, MODIFIED, DELETED files).  
-- SHA-256 based hashing for file verification.  
-- Continuous monitoring with customizable intervals.  
-- Logs actions in **HTML reports** and local log files.  
-- Baseline integrity verification (`--doctor`).  
-- Single file verification (`--verify`).  
-- Banner display and tool information (`--banner`, `--about`).  
-- Compatible with **Linux and Windows**.  
-- Beginner-friendly CLI with short (`-`) and long (`--`) commands.
+- **File Integrity Monitoring** - Detect NEW, MODIFIED, and DELETED files  
+- **SHA-256 Hashing** - Cryptographic verification of file contents  
+- **Multi-format Reporting** - CLI text reports, HTML reports, and JSON output  
+- **Baseline Comparison** - Compare current directory state against saved baseline  
+- **Automatic Directory Creation** - Creates necessary log directories on first run  
+- **Colored Output** - Visual indicators for file changes (green, yellow, red)  
+- **Cross-platform** - Compatible with **Linux and Windows**  
+- **Fast Performance** - Recursive directory scanning with efficient hashing
 
 ---
 
 ## 💻 **Commands & Usage**
 
-<table>
-  <thead>
-    <tr>
-      <th>Command</th>
-      <th>Short</th>
-      <th>Description</th>
-      <th>Example</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>Show help</td>
-      <td>-h</td>
-      <td>Display this help menu</td>
-      <td><code>sentinel-c --help</code></td>
-    </tr>
-    <tr>
-      <td>Version</td>
-      <td>-v</td>
-      <td>Show tool version</td>
-      <td><code>sentinel-c --version</code></td>
-    </tr>
-    <tr>
-      <td>Show banner</td>
-      <td>–</td>
-      <td>Display ASCII banner</td>
-      <td><code>sentinel-c --banner</code></td>
-    </tr>
-    <tr>
-      <td>About</td>
-      <td>–</td>
-      <td>Tool info + author contact</td>
-      <td><code>sentinel-c --about</code></td>
-    </tr>
-    <tr>
-      <td>Initialize baseline</td>
-      <td>-i</td>
-      <td>Scan directory and create baseline</td>
-      <td><code>sentinel-c --init ./myfolder</code></td>
-    </tr>
-    <tr>
-      <td>Scan</td>
-      <td>-s</td>
-      <td>Compare current directory to baseline</td>
-      <td><code>sentinel-c --scan ./myfolder</code></td>
-    </tr>
-    <tr>
-      <td>Monitor</td>
-      <td>-m</td>
-      <td>Continuously scan every N seconds</td>
-      <td><code>sentinel-c --monitor ./myfolder 10</code></td>
-    </tr>
-    <tr>
-      <td>Verify file</td>
-      <td>-f</td>
-      <td>Check SHA-256 hash of a single file</td>
-      <td><code>sentinel-c --verify ./file.txt</code></td>
-    </tr>
-    <tr>
-      <td>Doctor</td>
-      <td>-d</td>
-      <td>Check baseline integrity</td>
-      <td><code>sentinel-c --doctor</code></td>
-    </tr>
-  </tbody>
-</table>
+```
+Sentinel-C v3.50
 
+--init <path>    Initialize baseline for a directory
+--scan <path>    Scan directory and compare against baseline
+--help           Show this help message
+```
 
----
-
-## 📌 **Multi-Option Example**
+### **Quick Start Example:**
 
 ```bash
-# Initialize baseline and then scan directory
-sentinel-c --init ./myfolder
-sentinel-c --scan ./myfolder
+# Step 1: Create baseline of a directory
+./sentinel-c --init /path/to/monitor
 
-# Monitor a directory every 15 seconds
-sentinel-c --monitor ./myfolder 15
+# Step 2: Modify, delete, or add files in that directory
 
-# Verify a single file
-sentinel-c --verify ./myfolder/file.txt
-
-# Check baseline integrity
-sentinel-c --doctor
-
-# Show tool info with contact
-sentinel-c --about
+# Step 3: Scan for changes
+./sentinel-c --scan /path/to/monitor
 ```
+
+### **Output Files:**
+
+The tool generates reports in `sentinel-c-logs/` directory:
+
+- **CLI Report:** `reports/cli/scan_<timestamp>.txt` - Plain text summary  
+- **HTML Report:** `reports/html/scan_<timestamp>.html` - Formatted HTML table  
+- **JSON Report:** `reports/json/scan_<timestamp>.json` - Structured JSON data  
+
+### **Output Colors:**
+
+- 🟢 **Green** `[+] NEW` - New files detected  
+- 🟡 **Yellow** `[!] MODIFIED` - Changed files  
+- 🔴 **Red** `[-] DELETED` - Missing files
 
 ---
 
 ## 🟢 **Output**
 
-- Colored terminal messages:  
-  - **Green** → NEW files  
-  - **Yellow** → MODIFIED files  
-  - **Red** → DELETED files  
+**Console Output Example:**
+```
+[+] NEW /path/to/newfile.txt
+[!] MODIFIED /path/to/changed.cpp
+[-] DELETED /path/to/removed.log
+```
 
-- Logs: `sentinel-c-logs/data/.sentinel.log`  
-- HTML reports: `sentinel-c-logs/reports/sentinel_report_<timestamp>.html`
+**Report Files Generated:**
+- `sentinel-c-logs/reports/cli/scan_<timestamp>.txt` - Text summary  
+- `sentinel-c-logs/reports/html/scan_<timestamp>.html` - Interactive HTML report  
+- `sentinel-c-logs/reports/json/scan_<timestamp>.json` - JSON data export  
+
+**Baseline Storage:**
+- `sentinel-c-logs/data/.sentinel-baseline` - Stores file hashes and metadata
 
 ---
 

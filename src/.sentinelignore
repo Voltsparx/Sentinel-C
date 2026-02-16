@@ -1,0 +1,6 @@
+build/
+.git/
+CMakeFiles/
+baseline.db
+*.o
+*.d

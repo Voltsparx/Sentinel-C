@@ -1,0 +1,260 @@
+# Sentinel-C v3.50 - Build & Setup Guide
+
+## ⚠️ Requirements
+
+Before building Sentinel-C, ensure you have:
+
+1. **CMake** (version 3.10 or higher)
+   - Download: https://cmake.org/download/
+
+2. **C++ Compiler** (C++17 support required)
+   - **Windows**: Visual Studio 2015+ OR MinGW
+   - **Linux**: GCC or Clang
+   - **macOS**: Xcode Command Line Tools
+
+3. **Git** (optional, for cloning the repository)
+
+---
+
+## 🪟 Windows Build Instructions
+
+### Option 1: Visual Studio 2022 (Recommended)
+
+1. Install **Visual Studio 2022** with C++ development tools
+2. Clone/extract the repository
+3. Open PowerShell or Command Prompt
+4. Navigate to the project directory:
+   ```powershell
+   cd Sentinel-C-main
+   ```
+
+5. Create and enter build directory:
+   ```powershell
+   mkdir build
+   cd build
+   ```
+
+6. Generate Visual Studio project files:
+   ```powershell
+   cmake -G "Visual Studio 17 2022" ..
+   ```
+
+7. Build the project:
+   ```powershell
+   cmake --build . --config Release
+   ```
+
+8. The executable will be in: `build/bin/sentinel-c.exe`
+
+---
+
+### Option 2: MinGW Compiler
+
+1. Install **MinGW-w64** from https://www.mingw-w64.org/
+2. Ensure `g++` and `mingw32-make` are in your PATH
+3. Clone/extract the repository
+4. Navigate to project directory and create build folder:
+   ```powershell
+   mkdir build
+   cd build
+   ```
+
+5. Configure with MinGW:
+   ```powershell
+   cmake -G "MinGW Makefiles" ..
+   ```
+
+6. Build:
+   ```powershell
+   cmake --build .
+   ```
+
+7. The executable will be in: `build/bin/sentinel-c.exe`
+
+---
+
+## 🐧 Linux Build Instructions
+
+1. Install required build tools (Ubuntu/Debian):
+   ```bash
+   sudo apt-get update
+   sudo apt-get install build-essential cmake
+   ```
+
+2. Install for Fedora/RedHat:
+   ```bash
+   sudo dnf install gcc-c++ cmake
+   ```
+
+3. Clone the repository:
+   ```bash
+   git clone https://github.com/voltsparx/Sentinel-C.git
+   cd Sentinel-C
+   ```
+
+4. Create and enter build directory:
+   ```bash
+   mkdir build
+   cd build
+   ```
+
+5. Generate build files:
+   ```bash
+   cmake ..
+   ```
+
+6. Build the project:
+   ```bash
+   cmake --build .
+   ```
+
+7. The executable will be in: `build/bin/sentinel-c`
+
+8. (Optional) Add to PATH:
+   ```bash
+   sudo cp build/bin/sentinel-c /usr/local/bin/
+   ```
+
+---
+
+## 🍎 macOS Build Instructions
+
+1. Install Xcode Command Line Tools:
+   ```bash
+   xcode-select --install
+   ```
+
+2. Install CMake (using Homebrew):
+   ```bash
+   brew install cmake
+   ```
+
+3. Clone the repository:
+   ```bash
+   git clone https://github.com/voltsparx/Sentinel-C.git
+   cd Sentinel-C
+   ```
+
+4. Create and enter build directory:
+   ```bash
+   mkdir build
+   cd build
+   ```
+
+5. Generate build files:
+   ```bash
+   cmake ..
+   ```
+
+6. Build the project:
+   ```bash
+   cmake --build .
+   ```
+
+7. The executable will be in: `build/bin/sentinel-c`
+
+---
+
+## ✅ Verify Installation
+
+After building, verify the executable works:
+
+**Windows:**
+```powershell
+./build/bin/sentinel-c.exe --help
+```
+
+**Linux/macOS:**
+```bash
+./build/bin/sentinel-c --help
+```
+
+Expected output:
+```
+Sentinel-C v3.50
+
+--init <path>    Initialize baseline for a directory
+--scan <path>    Scan directory and compare against baseline
+--help           Show this help message
+```
+
+---
+
+## 🔧 Troubleshooting
+
+### Error: "no such file or directory" for nmake/compiler
+
+**Cause**: No C++ compiler detected on your system
+
+**Solution**: 
+- **Windows**: Install Visual Studio 2022 or MinGW
+- **Linux**: Run `sudo apt-get install build-essential`
+- **macOS**: Run `xcode-select --install`
+
+### Error: "CMAKE_CXX_COMPILER not set"
+
+**Solution**: Specify the compiler path explicitly:
+```bash
+cmake -D CMAKE_CXX_COMPILER=<path-to-compiler> ..
+```
+
+### CMake "could not find any instance of Visual Studio"
+
+**Solution**: Use MinGW generator instead:
+```powershell
+cmake -G "MinGW Makefiles" ..
+```
+
+---
+
+## 📝 Build Configuration Options
+
+You can customize the build by adding flags to `cmake`:
+
+```bash
+# Build in Debug mode (with debug symbols)
+cmake -DCMAKE_BUILD_TYPE=Debug ..
+
+# Build in Release mode (optimized)
+cmake -DCMAKE_BUILD_TYPE=Release ..
+
+# Specify custom C++ compiler
+cmake -D CMAKE_CXX_COMPILER=clang++ ..
+```
+
+---
+
+## 🧹 Cleaning the Build
+
+To clean and rebuild:
+
+```bash
+cd build
+rm -r * (Linux/macOS)
+rmdir /s /q * (Windows)
+cmake ..
+cmake --build .
+```
+
+---
+
+## 📚 Quick Start After Building
+
+```bash
+# Initialize baseline for a directory
+./sentinel-c --init /path/to/directory
+
+# Scan for changes
+./sentinel-c --scan /path/to/directory
+
+# View reports in sentinel-c-logs/reports/
+```
+
+---
+
+## 💡 Additional Notes
+
+- The project uses **C++17 standard**
+- Cross-platform compatible
+- Requires **at least 50MB** of free disk space for build artifacts
+- Reports are generated in `sentinel-c-logs/` directory

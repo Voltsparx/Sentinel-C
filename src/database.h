@@ -1,26 +1,21 @@
 #pragma once
-#include "scanner.h"
+#include "common.h"
 #include <vector>
-#include <string>
 #include <unordered_map>
 
 namespace database {
 
-// Initialize storage folders (logs & reports)
 void init_storage();
+void save_baseline(const std::vector<common::FileEntry>& files);
+std::unordered_map<std::string, common::FileEntry> load_baseline();
 
-// Save baseline to disk
-void save_baseline(const std::vector<FileEntry>& files);
+void log_action(const std::string& action, const std::string& path);
 
-// Load baseline from disk
-std::unordered_map<std::string, FileEntry> load_baseline();
-
-// Log a single action (NEW / MODIFIED / DELETED)
-void log_action(const std::string& action, const std::string& filepath);
-
-// Generate HTML report from changes
-void generate_html_report(const std::vector<FileEntry>& new_files,
-                          const std::vector<FileEntry>& modified_files,
-                          const std::vector<FileEntry>& deleted_files);
+void generate_reports(
+    const std::vector<common::FileEntry>& added,
+    const std::vector<common::FileEntry>& modified,
+    const std::vector<common::FileEntry>& deleted,
+    const std::string& root
+);
 
 }

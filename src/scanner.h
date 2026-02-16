@@ -1,8 +1,5 @@
 #pragma once
+#include <string>
 
-namespace security {
-
-// Check if baseline file exists and is valid
-bool baseline_integrity_ok();
-
-}
+void initialize_baseline(const std::string& root);
+void scan_and_compare(const std::string& root);

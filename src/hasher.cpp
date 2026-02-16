@@ -5,10 +5,12 @@
 #include <vector>
 #include <cstdint>
 
+namespace hasher {
+
 namespace {
 
 // SHA-256 constants
-constexpr uint32_t K[64] = {
+constexpr uint32_t K[64] = { /* same constants as before */ 
     0x428a2f98,0x71374491,0xb5c0fbcf,0xe9b5dba5,0x3956c25b,0x59f111f1,0x923f82a4,0xab1c5ed5,
     0xd807aa98,0x12835b01,0x243185be,0x550c7dc3,0x72be5d74,0x80deb1fe,0x9bdc06a7,0xc19bf174,
     0xe49b69c1,0xefbe4786,0x0fc19dc6,0x240ca1cc,0x2de92c6f,0x4a7484aa,0x5cb0a9dc,0x76f988da,
@@ -19,42 +21,34 @@ constexpr uint32_t K[64] = {
     0x748f82ee,0x78a5636f,0x84c87814,0x8cc70208,0x90befffa,0xa4506ceb,0xbef9a3f7,0xc67178f2
 };
 
-// Rotate right
 inline uint32_t rotr(uint32_t x, uint32_t n) { return (x >> n) | (x << (32 - n)); }
 
-} // namespace
+} // anonymous
 
 std::string sha256_file(const std::string& filepath) {
     std::ifstream file(filepath, std::ios::binary);
     if (!file) return "";
 
-    std::vector<uint8_t> data((std::istreambuf_iterator<char>(file)),
-                               std::istreambuf_iterator<char>());
+    std::vector<uint8_t> data((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
     uint64_t bit_len = data.size() * 8;
 
-    // Padding
     data.push_back(0x80);
     while ((data.size() * 8) % 512 != 448) data.push_back(0x00);
 
-    // Append length
-    for (int i = 7; i >= 0; --i) data.push_back((bit_len >> (i * 8)) & 0xFF);
+    for (int i=7;i>=0;--i) data.push_back((bit_len >> (i*8)) & 0xFF);
 
     uint32_t h[8] = {0x6a09e667,0xbb67ae85,0x3c6ef372,0xa54ff53a,
                       0x510e527f,0x9b05688c,0x1f83d9ab,0x5be0cd19};
 
-    // Process each 512-bit chunk
-    for (size_t i = 0; i < data.size(); i += 64) {
+    for (size_t i=0;i<data.size();i+=64){
         uint32_t w[64] = {0};
-        for (int j = 0; j < 16; ++j)
+        for(int j=0;j<16;++j) 
             w[j] = (data[i+j*4]<<24)|(data[i+j*4+1]<<16)|(data[i+j*4+2]<<8)|(data[i+j*4+3]);
-        for (int j = 16; j < 64; ++j)
-            w[j] = (rotr(w[j-2],17)^rotr(w[j-2],19)^(w[j-2]>>10))
-                 + w[j-7]
-                 + (rotr(w[j-15],7)^rotr(w[j-15],18)^(w[j-15]>>3))
-                 + w[j-16];
+        for(int j=16;j<64;++j)
+            w[j] = (rotr(w[j-2],17)^rotr(w[j-2],19)^(w[j-2]>>10)) + w[j-7] + (rotr(w[j-15],7)^rotr(w[j-15],18)^(w[j-15]>>3)) + w[j-16];
 
         uint32_t a=h[0],b=h[1],c=h[2],d=h[3],e=h[4],f=h[5],g=h[6],hh=h[7];
-        for (int j = 0; j < 64; ++j) {
+        for(int j=0;j<64;++j){
             uint32_t t1 = hh + (rotr(e,6)^rotr(e,11)^rotr(e,25)) + ((e&f)^((~e)&g)) + K[j] + w[j];
             uint32_t t2 = (rotr(a,2)^rotr(a,13)^rotr(a,22)) + ((a&b)^(a&c)^(b&c));
             hh=g; g=f; f=e; e=d+t1; d=c; c=b; b=a; a=t1+t2;
@@ -63,6 +57,8 @@ std::string sha256_file(const std::string& filepath) {
     }
 
     std::ostringstream out;
-    for (auto v : h) out << std::hex << std::setw(8) << std::setfill('0') << v;
+    for(auto v:h) out << std::hex << std::setw(8) << std::setfill('0') << v;
     return out.str();
 }
+
+} // namespace hasher
