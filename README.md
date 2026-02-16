@@ -70,7 +70,6 @@ Sentinel-C/
 ├── src/                # Source & headers
 ├── CMakeLists.txt
 ├── README.md
-├── .gitignore
 ├── sentinel-c-logs/    # Logs & HTML reports
 │   ├── data/
 │   └── reports/
