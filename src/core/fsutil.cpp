@@ -1,7 +1,9 @@
 #include "fsutil.h"
 #include "config.h"
-#include <filesystem>
+#include <algorithm>
+#include <cctype>
 #include <chrono>
+#include <filesystem>
 #include <iomanip>
 #include <sstream>
 #include <system_error>
@@ -38,4 +40,39 @@ std::string timestamp() {
     return ss.str();
 }
 
+std::string sanitize_token(const std::string& value, const std::string& fallback) {
+    if (value.empty()) {
+        return fallback.empty() ? "scan" : fallback;
+    }
+
+    std::string out;
+    out.reserve(value.size());
+
+    for (const unsigned char ch : value) {
+        if (std::isalnum(ch) != 0 || ch == '-' || ch == '_') {
+            out.push_back(static_cast<char>(ch));
+        } else {
+            out.push_back('_');
+        }
+    }
+
+    // Collapse repeated underscores for cleaner names.
+    out.erase(std::unique(out.begin(), out.end(), [](char left, char right) {
+                  return left == '_' && right == '_';
+              }),
+              out.end());
+
+    while (!out.empty() && out.front() == '_') {
+        out.erase(out.begin());
+    }
+    while (!out.empty() && out.back() == '_') {
+        out.pop_back();
+    }
+
+    if (out.empty()) {
+        return fallback.empty() ? "scan" : fallback;
+    }
+    return out;
 }
+
+} // namespace fsutil

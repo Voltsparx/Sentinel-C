@@ -33,7 +33,7 @@ std::tm local_time(std::time_t t) {
 
 std::string format_mtime(std::time_t t) {
     if (t <= 0) {
-        return "";
+        return "-";
     }
     const std::tm tm = local_time(t);
     std::ostringstream out;
@@ -84,6 +84,11 @@ void write_row(std::ofstream& out,
         << escape_csv(note) << "\n";
 }
 
+std::string report_scan_id(const std::string& scan_id) {
+    const std::string raw_id = scan_id.empty() ? fsutil::timestamp() : scan_id;
+    return fsutil::sanitize_token(raw_id, "scan");
+}
+
 void collect_rows(const scanner::FileMap& files,
                   const std::string& status,
                   std::vector<ChangeRow>& rows) {
@@ -119,16 +124,16 @@ void write_advisor_block(std::ofstream& out, const AdvisorNarrative& narrative) 
 } // namespace
 
 std::string write_csv(const scanner::ScanResult& result, const std::string& scan_id) {
-    const std::string id = scan_id.empty() ? fsutil::timestamp() : scan_id;
+    const std::string id = report_scan_id(scan_id);
     const std::string file =
         config::REPORT_CSV_DIR + "/sentinel-c_integrity_csv_report_" + id + ".csv";
 
     std::ofstream out(file, std::ios::trunc);
     if (!out.is_open()) {
-        return "";
+        return "-";
     }
 
-    const AdvisorNarrative narrative = advisor_narrative(result);
+    const AdvisorNarrative narrative = advisor_narrative(result);`r`n    out << "\xEF\xBB\xBF";
     const std::string status = advisor_status(result) == "clean" ? "CLEAN" : "CHANGES_DETECTED";
 
     out << "section,type,path,size,mtime,sha256,note\n";

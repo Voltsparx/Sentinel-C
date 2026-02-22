@@ -16,6 +16,9 @@
 #include <unordered_map>
 #include <utility>
 #include <vector>
+#ifdef _WIN32
+#include <windows.h>
+#endif
 
 namespace commands {
 
@@ -143,23 +146,24 @@ std::string style(const std::string& text, const char* color) {
 
 void clear_screen() {
 #ifdef _WIN32
-    const int rc = std::system("cls");
-    if (rc != 0) {
-        // ANSI fallback for shells where cls is unavailable.
-        std::cout << "\033[2J\033[H";
-    }
-#else
-    const char* term = std::getenv("TERM");
-    if (term != nullptr && term[0] != '\0') {
-        const int rc = std::system("clear");
-        if (rc != 0) {
-            std::cout << "\033[2J\033[H";
+    HANDLE console = GetStdHandle(STD_OUTPUT_HANDLE);
+    if (console != nullptr && console != INVALID_HANDLE_VALUE) {
+        CONSOLE_SCREEN_BUFFER_INFO info{};
+        if (GetConsoleScreenBufferInfo(console, &info) != 0) {
+            const DWORD cell_count =
+                static_cast<DWORD>(info.dwSize.X) * static_cast<DWORD>(info.dwSize.Y);
+            DWORD written = 0;
+            const COORD home{0, 0};
+            FillConsoleOutputCharacterA(console, ' ', cell_count, home, &written);
+            FillConsoleOutputAttribute(console, info.wAttributes, cell_count, home, &written);
+            SetConsoleCursorPosition(console, home);
+            return;
         }
-    } else {
-        // Fallback when TERM is unavailable (non-interactive shells/pipes).
-        std::cout << "\033[2J\033[H";
     }
 #endif
+    // ANSI fallback for terminals and non-Windows shells.
+    std::cout << "\033[2J\033[H";
+    std::cout.flush();
 }
 
 void print_prompt_help() {

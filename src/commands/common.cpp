@@ -57,7 +57,8 @@ std::string normalize_path(const std::string& path) {
 
 bool is_directory_path(const std::string& path) {
     std::error_code ec;
-    return fs::exists(path, ec) && fs::is_directory(path, ec);
+    const fs::file_status status = fs::status(path, ec);
+    return !ec && fs::is_directory(status);
 }
 
 core::OutputPaths default_outputs() {

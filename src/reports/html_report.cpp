@@ -90,6 +90,11 @@ std::string risk_css(const std::string& risk_level) {
     return "risk-low";
 }
 
+std::string report_scan_id(const std::string& scan_id) {
+    const std::string raw_id = scan_id.empty() ? fsutil::timestamp() : scan_id;
+    return fsutil::sanitize_token(raw_id, "scan");
+}
+
 void write_change_table(std::ofstream& out,
                         const std::string& title,
                         const std::string& status_label,
@@ -158,7 +163,7 @@ void write_advisor_list(std::ofstream& out,
 namespace reports {
 
 std::string write_html(const scanner::ScanResult& result, const std::string& scan_id) {
-    const std::string id = scan_id.empty() ? fsutil::timestamp() : scan_id;
+    const std::string id = report_scan_id(scan_id);
     const std::string file =
         config::REPORT_HTML_DIR + "/sentinel-c_integrity_html_report_" + id + ".html";
 

@@ -3,7 +3,10 @@
 #include "../core/config.h"
 #include "../core/fsutil.h"
 #include <algorithm>
+#include <ctime>
 #include <fstream>
+#include <iomanip>
+#include <sstream>
 #include <string>
 #include <vector>
 
@@ -27,21 +30,52 @@ std::string escape_json(const std::string& text) {
     return out;
 }
 
-void write_paths(std::ofstream& out,
-                 const char* name,
-                 const scanner::FileMap& data,
-                 bool trailing_comma) {
-    std::vector<std::string> paths;
-    paths.reserve(data.size());
-    for (const auto& item : data) {
-        paths.push_back(item.first);
+std::string format_mtime(std::time_t timestamp) {
+    if (timestamp <= 0) {
+        return "-";
     }
-    std::sort(paths.begin(), paths.end());
+
+    std::tm tm{};
+#ifdef _WIN32
+    localtime_s(&tm, &timestamp);
+#else
+    localtime_r(&timestamp, &tm);
+#endif
+
+    std::ostringstream out;
+    out << std::put_time(&tm, "%Y-%m-%d %H:%M:%S");
+    return out.str();
+}
+
+std::vector<const core::FileEntry*> sorted_entries(const scanner::FileMap& data) {
+    std::vector<const core::FileEntry*> entries;
+    entries.reserve(data.size());
+    for (const auto& item : data) {
+        entries.push_back(&item.second);
+    }
+    std::sort(entries.begin(), entries.end(), [](const core::FileEntry* left, const core::FileEntry* right) {
+        return left->path < right->path;
+    });
+    return entries;
+}
+
+void write_entries(std::ofstream& out,
+                   const char* name,
+                   const scanner::FileMap& data,
+                   bool trailing_comma) {
+    const auto entries = sorted_entries(data);
 
     out << "  \"" << name << "\": [\n";
-    for (std::size_t index = 0; index < paths.size(); ++index) {
-        out << "    \"" << escape_json(paths[index]) << "\"";
-        if (index + 1 < paths.size()) {
+    for (std::size_t index = 0; index < entries.size(); ++index) {
+        const core::FileEntry& entry = *entries[index];
+        out << "    {"
+            << "\"path\":\"" << escape_json(entry.path) << "\"," 
+            << "\"size\":" << entry.size << ","
+            << "\"mtime\":" << entry.mtime << ","
+            << "\"mtime_text\":\"" << escape_json(format_mtime(entry.mtime)) << "\"," 
+            << "\"sha256\":\"" << escape_json(entry.hash) << "\""
+            << "}";
+        if (index + 1 < entries.size()) {
             out << ",";
         }
         out << "\n";
@@ -77,7 +111,8 @@ void write_string_array(std::ofstream& out,
 namespace reports {
 
 std::string write_json(const scanner::ScanResult& result, const std::string& scan_id) {
-    const std::string id = scan_id.empty() ? fsutil::timestamp() : scan_id;
+    const std::string raw_id = scan_id.empty() ? fsutil::timestamp() : scan_id;
+    const std::string id = fsutil::sanitize_token(raw_id, "scan");
     const std::string file =
         config::REPORT_JSON_DIR + "/sentinel-c_integrity_json_report_" + id + ".json";
 
@@ -91,6 +126,8 @@ std::string write_json(const scanner::ScanResult& result, const std::string& sca
 
     out << "{\n";
     out << "  \"version\": \"" << escape_json(config::VERSION) << "\",\n";
+    out << "  \"scan_id\": \"" << escape_json(id) << "\",\n";
+    out << "  \"generated_at\": \"" << escape_json(format_mtime(std::time(nullptr))) << "\",\n";
     out << "  \"status\": \"" << status << "\",\n";
     out << "  \"stats\": {\n";
     out << "    \"scanned\": " << result.stats.scanned << ",\n";
@@ -99,9 +136,9 @@ std::string write_json(const scanner::ScanResult& result, const std::string& sca
     out << "    \"deleted\": " << result.stats.deleted << ",\n";
     out << "    \"duration\": " << result.stats.duration << "\n";
     out << "  },\n";
-    write_paths(out, "new", result.added, true);
-    write_paths(out, "modified", result.modified, true);
-    write_paths(out, "deleted", result.deleted, true);
+    write_entries(out, "new", result.added, true);
+    write_entries(out, "modified", result.modified, true);
+    write_entries(out, "deleted", result.deleted, true);
     out << "  \"advisor\": {\n";
     out << "    \"summary\": \"" << escape_json(narrative.summary) << "\",\n";
     out << "    \"risk_level\": \"" << escape_json(narrative.risk_level) << "\",\n";

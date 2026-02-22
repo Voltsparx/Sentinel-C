@@ -41,6 +41,11 @@ std::string format_mtime(std::time_t t) {
     return out.str();
 }
 
+std::string report_scan_id(const std::string& scan_id) {
+    const std::string raw_id = scan_id.empty() ? fsutil::timestamp() : scan_id;
+    return fsutil::sanitize_token(raw_id, "scan");
+}
+
 void collect_rows(const scanner::FileMap& files,
                   const std::string& status,
                   std::vector<ChangeRow>& rows) {
@@ -104,7 +109,7 @@ void write_ascii_table(std::ofstream& out, const std::vector<ChangeRow>& rows) {
 } // namespace
 
 std::string write_cli(const scanner::ScanResult& result, const std::string& scan_id) {
-    const std::string id = scan_id.empty() ? fsutil::timestamp() : scan_id;
+    const std::string id = report_scan_id(scan_id);
     const std::string file =
         config::REPORT_CLI_DIR + "/sentinel-c_integrity_cli_report_" + id + ".txt";
 

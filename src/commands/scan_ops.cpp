@@ -8,7 +8,7 @@
 #include "../reports/csv_report.h"
 #include "../reports/html_report.h"
 #include "../reports/json_report.h"
-#include <cctype>
+#include <algorithm>`r`n#include <cctype>
 #include <chrono>
 #include <filesystem>
 #include <future>
@@ -465,7 +465,8 @@ ExitCode handle_watch(const ParsedArgs& parsed) {
         return load_code;
     }
 
-    if (!baseline.root.empty() && baseline.root != target) {
+    if (!baseline.root.empty() &&
+        normalize_compare_key(baseline.root) != normalize_compare_key(target)) {
         if (as_json) {
             std::cout << "{"
                       << "\"command\":\"watch\","
