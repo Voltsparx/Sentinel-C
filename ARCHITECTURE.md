@@ -12,7 +12,7 @@
 
 `CMakeLists.txt` builds the modular tree under `src/`:
 
-- `src/core`: config, logging, summary, filesystem helpers, runtime settings
+- `src/core`: config, logging, summary, filesystem helpers, runtime settings, terminal color management
 - `src/commands`: parsing, dispatching, command workflows
 - `src/scanner`: snapshot creation, baseline IO, ignore rules, hashing, comparison
 - `src/reports`: CLI/HTML/JSON/CSV report generation and report-level advisor

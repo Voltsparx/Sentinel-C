@@ -1,20 +1,13 @@
 #include "advisor.h"
-#include "../core/config.h"
+#include "../core/colors.h"
 #include <iostream>
 
 namespace commands {
 
 namespace {
 
-constexpr const char* ANSI_RESET = "\033[0m";
-constexpr const char* ANSI_CYAN = "\033[36m";
-constexpr const char* ANSI_GREY = "\033[90m";
-
-std::string styled(const std::string& text, const char* color) {
-    if (!config::COLOR_OUTPUT) {
-        return text;
-    }
-    return std::string(color) + text + ANSI_RESET;
+std::string styled(const std::string& text, colors::Tone tone) {
+    return colors::paint(text, tone);
 }
 
 } // namespace
@@ -125,9 +118,9 @@ void print_advice(const std::vector<std::string>& lines) {
         return;
     }
 
-    std::cout << "\n" << styled("Guidance", ANSI_CYAN) << "\n";
+    std::cout << "\n" << styled("Guidance", colors::Tone::Cyan) << "\n";
     for (const std::string& line : lines) {
-        std::cout << styled("  > ", ANSI_GREY) << line << "\n";
+        std::cout << styled("  > ", colors::Tone::Grey) << line << "\n";
     }
 }
 

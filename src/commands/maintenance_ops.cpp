@@ -22,10 +22,6 @@ namespace commands {
 
 namespace {
 
-constexpr const char* ANSI_GREEN = "\033[32m";
-constexpr const char* ANSI_YELLOW = "\033[33m";
-constexpr const char* ANSI_RED = "\033[31m";
-constexpr const char* ANSI_CYAN = "\033[36m";
 
 struct ReportItem {
     std::string type;
@@ -483,19 +479,19 @@ ExitCode handle_doctor(const ParsedArgs& parsed) {
         std::cout << "  ]\n}\n";
     } else {
         if (!quiet) {
-            std::cout << colorize("Sentinel-C Doctor Report", ANSI_CYAN) << "\n";
+            std::cout << colorize("Sentinel-C Doctor Report", colors::Tone::Cyan) << "\n";
             for (const DoctorCheck& check : checks) {
                 std::string label = "[PASS]";
-                const char* color = ANSI_GREEN;
+                colors::Tone tone = colors::Tone::Green;
                 if (check.level == "warn") {
                     label = "[WARN]";
-                    color = ANSI_YELLOW;
+                    tone = colors::Tone::Yellow;
                 } else if (check.level == "fail") {
                     label = "[FAIL]";
-                    color = ANSI_RED;
+                    tone = colors::Tone::Red;
                 }
 
-                std::cout << colorize(label, color) << " "
+                std::cout << colorize(label, tone) << " "
                           << std::left << std::setw(20) << check.name
                           << " " << check.detail << "\n";
             }
@@ -621,19 +617,19 @@ ExitCode handle_guard(const ParsedArgs& parsed) {
         std::cout << "  ]\n}\n";
     } else {
         if (!quiet) {
-            std::cout << colorize("Sentinel-C Guard Report", ANSI_CYAN) << "\n";
+            std::cout << colorize("Sentinel-C Guard Report", colors::Tone::Cyan) << "\n";
             for (const DoctorCheck& check : checks) {
                 std::string label = "[PASS]";
-                const char* color = ANSI_GREEN;
+                colors::Tone tone = colors::Tone::Green;
                 if (check.level == "warn") {
                     label = "[WARN]";
-                    color = ANSI_YELLOW;
+                    tone = colors::Tone::Yellow;
                 } else if (check.level == "fail") {
                     label = "[FAIL]";
-                    color = ANSI_RED;
+                    tone = colors::Tone::Red;
                 }
 
-                std::cout << colorize(label, color) << " "
+                std::cout << colorize(label, tone) << " "
                           << std::left << std::setw(24) << check.name
                           << " " << check.detail << "\n";
             }

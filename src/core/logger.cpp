@@ -1,4 +1,5 @@
 #include "logger.h"
+#include "colors.h"
 #include "config.h"
 #include <ctime>
 #include <fstream>
@@ -39,12 +40,12 @@ const char* level_label(logger::Level level) {
     }
 }
 
-const char* color(logger::Level level) {
+colors::Tone level_tone(logger::Level level) {
     switch (level) {
-        case logger::Level::SUCCESS: return "\033[32m";
-        case logger::Level::WARNING: return "\033[33m";
-        case logger::Level::ERROR: return "\033[31m";
-        default: return "\033[36m";
+        case logger::Level::SUCCESS: return colors::Tone::Success;
+        case logger::Level::WARNING: return colors::Tone::Warning;
+        case logger::Level::ERROR: return colors::Tone::Error;
+        default: return colors::Tone::Info;
     }
 }
 
@@ -54,6 +55,7 @@ namespace logger {
 
 void init() {
     std::lock_guard<std::mutex> guard(log_mutex);
+    colors::initialize();
     if (!log_stream.is_open()) {
         log_stream.open(config::LOG_FILE, std::ios::app);
     }
@@ -61,6 +63,7 @@ void init() {
 
 void reopen() {
     std::lock_guard<std::mutex> guard(log_mutex);
+    colors::initialize();
     if (log_stream.is_open()) {
         log_stream.close();
     }
@@ -72,8 +75,8 @@ void write(Level level, const std::string& message) {
     const std::string prefix =
         "[" + timestamp() + "] [" + level_label(level) + "] ";
 
-    if (config::COLOR_OUTPUT) {
-        std::cout << color(level) << prefix << message << "\033[0m\n";
+    if (colors::enabled()) {
+        std::cout << colors::paint(prefix + message, level_tone(level)) << "\n";
     } else {
         std::cout << prefix << message << "\n";
     }
@@ -88,4 +91,4 @@ void success(const std::string& m) { write(Level::SUCCESS, m); }
 void warning(const std::string& m) { write(Level::WARNING, m); }
 void error(const std::string& m)   { write(Level::ERROR, m); }
 
-}
+} // namespace logger

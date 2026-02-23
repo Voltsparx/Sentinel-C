@@ -8,7 +8,8 @@
 #include "../reports/csv_report.h"
 #include "../reports/html_report.h"
 #include "../reports/json_report.h"
-#include <algorithm>`r`n#include <cctype>
+#include <algorithm>
+#include <cctype>
 #include <chrono>
 #include <filesystem>
 #include <future>

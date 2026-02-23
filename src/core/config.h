@@ -209,6 +209,6 @@ struct RuntimeInit {
 
 inline RuntimeInit RUNTIME_INIT;
 
-inline const bool COLOR_OUTPUT = true;
+
 
 } // namespace config

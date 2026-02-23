@@ -1,5 +1,6 @@
 #include "common.h"
 #include "../banner.h"
+#include "../core/colors.h"
 #include "../core/config.h"
 #include "../core/logger.h"
 #include "../core/metadata.h"
@@ -10,24 +11,15 @@ namespace fs = std::filesystem;
 
 namespace commands {
 
-namespace {
+namespace { } // namespace
 
-constexpr const char* ANSI_RESET = "\033[0m";
-constexpr const char* ANSI_ORANGE = "\033[38;5;208m";
-constexpr const char* ANSI_GREY = "\033[90m";
-constexpr const char* ANSI_CYAN = "\033[36m";
-
-} // namespace
 
 bool has_changes(const scanner::ScanResult& result) {
     return result.stats.added > 0 || result.stats.modified > 0 || result.stats.deleted > 0;
 }
 
-std::string colorize(const std::string& text, const char* ansi_color) {
-    if (!config::COLOR_OUTPUT) {
-        return text;
-    }
-    return std::string(ansi_color) + text + ANSI_RESET;
+std::string colorize(const std::string& text, colors::Tone tone) {
+    return colors::paint(text, tone);
 }
 
 std::string json_escape(const std::string& value) {
@@ -136,8 +128,8 @@ void print_no_command_hint() {
 
 void print_help() {
     show_banner();
-    std::cout << colorize("Trust model: local-first; no automatic data upload.", ANSI_CYAN) << "\n"
-              << colorize("Use only on systems you own or are authorized to monitor.", ANSI_GREY)
+    std::cout << colorize("Trust model: local-first; no automatic data upload.", colors::Tone::Cyan) << "\n"
+              << colorize("Use only on systems you own or are authorized to monitor.", colors::Tone::Grey)
               << "\n\n";
 
     print_usage_lines();
@@ -163,8 +155,8 @@ void print_version(bool as_json) {
     }
 
     std::cout << config::TOOL_NAME << " " << config::VERSION << "\n"
-              << "By: " << colorize(metadata::AUTHOR, ANSI_ORANGE) << "\n"
-              << "Contact: " << colorize(metadata::CONTACT, ANSI_GREY) << "\n";
+              << "By: " << colorize(metadata::AUTHOR, colors::Tone::Orange) << "\n"
+              << "Contact: " << colorize(metadata::CONTACT, colors::Tone::Grey) << "\n";
 }
 
 void print_about() {

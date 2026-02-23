@@ -20,6 +20,7 @@ set(SENTINEL_SOURCES
     src/commands/dispatcher.cpp
     src/banner.cpp
     src/core/fsutil.cpp
+    src/core/colors.cpp
     src/core/logger.cpp
     src/core/runtime_settings.cpp
     src/core/summary.cpp
@@ -44,6 +45,11 @@ if(MSVC)
     target_compile_options(sentinel-c PRIVATE /W4 /permissive-)
 else()
     target_compile_options(sentinel-c PRIVATE -Wall -Wextra -pedantic -Wshadow)
+endif()
+
+# Produce a self-contained Windows binary when cross-compiling with MinGW.
+if(MINGW)
+    target_link_options(sentinel-c PRIVATE -static -static-libgcc -static-libstdc++)
 endif()
 
 message(STATUS "Sentinel-C v${PROJECT_VERSION} build configured.")

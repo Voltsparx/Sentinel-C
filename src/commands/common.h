@@ -1,6 +1,7 @@
 #pragma once
 
 #include "arg_parser.h"
+#include "../core/colors.h"
 #include "../core/types.h"
 #include "../scanner/scanner.h"
 #include <string>
@@ -44,7 +45,7 @@ struct DoctorCheck {
 using StringSet = std::unordered_set<std::string>;
 
 bool has_changes(const scanner::ScanResult& result);
-std::string colorize(const std::string& text, const char* ansi_color);
+std::string colorize(const std::string& text, colors::Tone tone);
 std::string json_escape(const std::string& value);
 std::string normalize_path(const std::string& path);
 bool is_directory_path(const std::string& path);

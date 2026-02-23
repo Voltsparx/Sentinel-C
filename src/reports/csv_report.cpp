@@ -130,10 +130,13 @@ std::string write_csv(const scanner::ScanResult& result, const std::string& scan
 
     std::ofstream out(file, std::ios::trunc);
     if (!out.is_open()) {
-        return "-";
+        return "";
     }
 
-    const AdvisorNarrative narrative = advisor_narrative(result);`r`n    out << "\xEF\xBB\xBF";
+    // UTF-8 BOM improves compatibility with spreadsheet tools on Windows.
+    out << "\xEF\xBB\xBF";
+
+    const AdvisorNarrative narrative = advisor_narrative(result);
     const std::string status = advisor_status(result) == "clean" ? "CLEAN" : "CHANGES_DETECTED";
 
     out << "section,type,path,size,mtime,sha256,note\n";

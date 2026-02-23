@@ -1,13 +1,15 @@
 #pragma once
-#include <string>
-#include <vector>
+#include <algorithm>
+#include <cctype>
+#include <cstdint>
+#include <ctime>
 #include <fstream>
 #include <iostream>
 #include <sstream>
-#include <algorithm>
-#include <cctype>
-#include <ctime>
-#include <cstdint>
+#include <string>
+#include <vector>
+
+#include "core/colors.h"
 
 namespace common {
 
@@ -28,17 +30,27 @@ inline std::string now_string() {
 }
 
 inline void log(const std::string& msg, LogLevel lvl = LogLevel::INFO) {
-    const char* color = "\033[0m";
-    const char* tag   = "[*]";
+    const char* tag = "[*]";
+    colors::Tone tone = colors::Tone::Info;
 
     switch (lvl) {
-        case LogLevel::SUCCESS: color = "\033[32m"; tag = "[+]"; break;
-        case LogLevel::ALERT:   color = "\033[33m"; tag = "[!]"; break;
-        case LogLevel::ERROR:   color = "\033[31m"; tag = "[-]"; break;
-        default: break;
+        case LogLevel::SUCCESS:
+            tag = "[+]";
+            tone = colors::Tone::Success;
+            break;
+        case LogLevel::ALERT:
+            tag = "[!]";
+            tone = colors::Tone::Warning;
+            break;
+        case LogLevel::ERROR:
+            tag = "[-]";
+            tone = colors::Tone::Error;
+            break;
+        default:
+            break;
     }
 
-    std::cout << color << tag << " " << msg << "\033[0m\n";
+    std::cout << colors::paint(std::string(tag) + " " + msg, tone) << "\n";
 }
 
-}
+} // namespace common

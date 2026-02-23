@@ -2,6 +2,7 @@
 #include "arg_parser.h"
 #include "dispatcher.h"
 #include "../banner.h"
+#include "../core/colors.h"
 #include "../core/config.h"
 #include "../core/fsutil.h"
 #include "../core/logger.h"
@@ -24,10 +25,6 @@ namespace commands {
 
 namespace {
 
-constexpr const char* ANSI_RESET = "\033[0m";
-constexpr const char* ANSI_CYAN = "\033[36m";
-constexpr const char* ANSI_GREEN = "\033[32m";
-constexpr const char* ANSI_GREY = "\033[90m";
 
 std::atomic<bool> g_interrupted{false};
 
@@ -137,11 +134,8 @@ std::vector<std::string> tokenize(const std::string& line) {
     return tokens;
 }
 
-std::string style(const std::string& text, const char* color) {
-    if (!config::COLOR_OUTPUT) {
-        return text;
-    }
-    return std::string(color) + text + ANSI_RESET;
+std::string style(const std::string& text, colors::Tone tone) {
+    return colors::paint(text, tone);
 }
 
 void clear_screen() {
@@ -162,7 +156,7 @@ void clear_screen() {
     }
 #endif
     // ANSI fallback for terminals and non-Windows shells.
-    std::cout << "\033[2J\033[H";
+    std::cout << colors::clear_screen_sequence();
     std::cout.flush();
 }
 
@@ -551,7 +545,7 @@ bool run_prompt_command(PromptSession& session, const std::vector<std::string>& 
     }
 
     const ExitCode code = dispatch(parsed);
-    std::cout << style("command exit=", ANSI_GREY) << static_cast<int>(code) << "\n";
+    std::cout << style("command exit=", colors::Tone::Grey) << static_cast<int>(code) << "\n";
     return true;
 }
 
@@ -588,10 +582,10 @@ ExitCode handle_prompt(const ParsedArgs& parsed) {
     session.no_advice = has_switch(parsed, "no-advice");
 
     show_banner();
-    std::cout << style("Sentinel-C Prompt Mode", ANSI_GREEN) << "\n";
-    std::cout << "Type " << style("help", ANSI_CYAN)
+    std::cout << style("Sentinel-C Prompt Mode", colors::Tone::Green) << "\n";
+    std::cout << "Type " << style("help", colors::Tone::Cyan)
               << " for console guidance. "
-              << "Use " << style("exit", ANSI_CYAN)
+              << "Use " << style("exit", colors::Tone::Cyan)
               << " or Ctrl+C to leave.\n\n";
     print_prompt_config(session);
     std::cout << "\n";
@@ -601,7 +595,7 @@ ExitCode handle_prompt(const ParsedArgs& parsed) {
 
     std::string line;
     while (!g_interrupted.load(std::memory_order_relaxed)) {
-        std::cout << style("sentinel-c> ", ANSI_CYAN);
+        std::cout << style("sentinel-c> ", colors::Tone::Cyan);
         if (!std::getline(std::cin, line)) {
             if (g_interrupted.load(std::memory_order_relaxed)) {
                 break;
@@ -620,7 +614,7 @@ ExitCode handle_prompt(const ParsedArgs& parsed) {
     }
 
     std::signal(SIGINT, previous_handler);
-    std::cout << "\n" << style("Leaving prompt mode.", ANSI_GREY) << "\n";
+    std::cout << "\n" << style("Leaving prompt mode.", colors::Tone::Grey) << "\n";
     return ExitCode::Ok;
 }
 
